@@ -1,5 +1,6 @@
 package com.randomCardBattle.service;
 
+import com.randomCardBattle.dto.GameResponseDTO;
 import com.randomCardBattle.model.*;
 import com.randomCardBattle.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class GameService {
 
@@ -27,7 +30,7 @@ public class GameService {
         this.cardRepository = cardRepository;
     }
 
-    public Game createGame(Long player1ID) {
+    public GameResponseDTO createGame(Long player1ID) {
         Member player1 = memberRepository.findById(player1ID)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid player1 ID"));
 
@@ -56,9 +59,11 @@ public class GameService {
         initializeGameDeck(createdGame);
 
         // 카드 분배 로직 추가
-        distributeCardsToPlayers(createdGame);
+        List<Card> player1Cards = distributeCardsToPlayer(createdGame, player1);
+        List<Card> player2Cards = distributeCardsToPlayer(createdGame, player2);
 
-        return createdGame;
+        // 게임과 플레이어의 손 패 정보를 포함한 DTO 반환
+        return new GameResponseDTO(createdGame, player1Cards, player2Cards);
     }
 
     private void initializeGameDeck(Game game) {
@@ -75,49 +80,32 @@ public class GameService {
         }
     }
 
-    private void distributeCardsToPlayers(Game game) {
-        // 게임 덱에서 카드 10장 가져오기
-        List<GameDeck> availableCards = gameDeckRepository.findByInDeckTrue();
-        if (availableCards.size() < 10) {
+    private List<Card> distributeCardsToPlayer(Game game, Member player) {
+        // 게임 덱에서 카드 5장 가져오기
+        List<GameDeck> availableCards = gameDeckRepository.findByGameAndInDeckTrue(game).stream().limit(5).collect(Collectors.toList());
+        if (availableCards.size() < 5) {
             throw new IllegalStateException("Not enough cards in the deck.");
         }
 
-        // 카드 섞기 (랜덤으로 선택하기 위해)
-        Collections.shuffle(availableCards);
-
-        List<GameDeck> selectedCards = availableCards.subList(0, 10);
-
-        // 각 플레이어에게 5장씩 배분
-        List<GameDeck> player1Cards = selectedCards.subList(0, 5);
-        List<GameDeck> player2Cards = selectedCards.subList(5, 10);
-
-        // 플레이어1의 GameAction 생성
-        GameAction player1Action = new GameAction();
-        player1Action.setGame(game);
-        player1Action.setMember(game.getPlayer1());
-        player1Action.setCard1(player1Cards.get(0).getGameDeckID());
-        player1Action.setCard2(player1Cards.get(1).getGameDeckID());
-        player1Action.setCard3(player1Cards.get(2).getGameDeckID());
-        player1Action.setCard4(player1Cards.get(3).getGameDeckID());
-        player1Action.setCard5(player1Cards.get(4).getGameDeckID());
-        gameActionRepository.save(player1Action);
-
-        // 플레이어2의 GameAction 생성
-        GameAction player2Action = new GameAction();
-        player2Action.setGame(game);
-        player2Action.setMember(game.getPlayer2());
-        player2Action.setCard1(player2Cards.get(0).getGameDeckID());
-        player2Action.setCard2(player2Cards.get(1).getGameDeckID());
-        player2Action.setCard3(player2Cards.get(2).getGameDeckID());
-        player2Action.setCard4(player2Cards.get(3).getGameDeckID());
-        player2Action.setCard5(player2Cards.get(4).getGameDeckID());
-        gameActionRepository.save(player2Action);
+        // 플레이어의 GameAction 생성
+        GameAction playerAction = new GameAction();
+        playerAction.setGame(game);
+        playerAction.setMember(player);
+        playerAction.setCard1(availableCards.get(0).getGameDeckID());
+        playerAction.setCard2(availableCards.get(1).getGameDeckID());
+        playerAction.setCard3(availableCards.get(2).getGameDeckID());
+        playerAction.setCard4(availableCards.get(3).getGameDeckID());
+        playerAction.setCard5(availableCards.get(4).getGameDeckID());
+        gameActionRepository.save(playerAction);
 
         // 게임 덱에서 선택된 카드들의 덱 내부 여부를 false로 업데이트
-        for (GameDeck card : selectedCards) {
-            card.setInDeck(false);
-            gameDeckRepository.save(card);
+        for (GameDeck gameDeck : availableCards) {
+            gameDeck.setInDeck(false);
+            gameDeckRepository.save(gameDeck);
         }
+
+        // 플레이어의 카드 목록을 반환
+        return availableCards.stream().map(GameDeck::getCard).collect(Collectors.toList());
     }
 
     public Game saveGame(Game game) {

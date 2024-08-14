@@ -1,5 +1,6 @@
 package com.randomCardBattle.controller;
 
+import com.randomCardBattle.dto.GameResponseDTO;
 import com.randomCardBattle.model.Game;
 import com.randomCardBattle.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ public class GameController {
     }
 
     @PostMapping
-    public Game createGame(@RequestBody Long player1ID) {
+    public GameResponseDTO createGame(@RequestBody Long player1ID) {
         return gameService.createGame(player1ID);
     }
 
