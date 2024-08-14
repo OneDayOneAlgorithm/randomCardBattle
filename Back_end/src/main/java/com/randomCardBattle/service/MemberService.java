@@ -28,4 +28,8 @@ public class MemberService {
     public void deleteMember(Long id) {
         memberRepository.deleteById(id);
     }
+
+    public Member login(String email, String password) {
+        return memberRepository.findByEmailAndPassword(email, password);
+    }
 }

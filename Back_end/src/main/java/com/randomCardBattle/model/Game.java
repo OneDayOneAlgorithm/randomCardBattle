@@ -17,12 +17,14 @@ public class Game {
     @ManyToOne
     @JoinColumn(name = "player2ID")
     private Member player2;
-
     private String startTime;
     private String endTime;
-    private int player1Health;
-    private int player2Health;
-    private int currentDamage;
-    private int currentTurnPlayerID;
+    private Long player1Health;
+    private Long player2Health;
+    private Long player1CurseCardId;
+    private Long player2CurseCardId;
+    private Long currentDamage;
+    private Long totalDamage;
+    private Long currentTurnPlayerID;
     private Long winnerID;
 }

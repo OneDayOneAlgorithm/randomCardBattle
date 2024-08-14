@@ -18,6 +18,5 @@ public class GameDeck {
     @JoinColumn(name = "cardID")
     private Card card;
 
-    private int deckOrder;
-    private boolean isInDeck;
+    private boolean inDeck;
 }

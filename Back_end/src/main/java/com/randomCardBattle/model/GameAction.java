@@ -18,10 +18,10 @@ public class GameAction {
     @JoinColumn(name = "gameID")
     private Game game;
 
-    private String card1;
-    private String card2;
-    private String card3;
-    private String card4;
-    private String card5;
-    private String curseCard;
+    private Long card1;
+    private Long card2;
+    private Long card3;
+    private Long card4;
+    private Long card5;
+    private Long curseCard;
 }

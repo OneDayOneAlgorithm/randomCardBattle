@@ -1,0 +1,33 @@
+.game {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .player {
+    border: 1px solid #ccc;
+    padding: 20px;
+    width: 45%;
+  }
+  
+  .hand {
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  .card {
+    border: 1px solid #000;
+    padding: 10px;
+    cursor: pointer;
+  }
+  
+  .curse {
+    margin-top: 20px;
+    background-color: #fdd;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  
+  .deck {
+    text-align: center;
+  }
+  

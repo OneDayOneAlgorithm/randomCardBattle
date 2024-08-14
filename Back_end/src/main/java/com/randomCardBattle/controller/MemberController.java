@@ -10,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/members")
+@CrossOrigin(origins = "http://localhost:3000")
 public class MemberController {
 
     private final MemberService memberService;
@@ -47,5 +48,10 @@ public class MemberController {
     @DeleteMapping("/{id}")
     public void deleteMember(@PathVariable Long id) {
         memberService.deleteMember(id);
+    }
+
+    @PostMapping("/login")
+    public Member login(@RequestBody Member member) {
+        return memberService.login(member.getEmail(), member.getPassword());
     }
 }
